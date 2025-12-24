@@ -1,68 +1,74 @@
 # RescueOpsSim
 
-**Deterministic search-and-rescue operations simulator (C++20)** — a portfolio-grade systems project focused on **simulation correctness, reproducibility, and engineering quality**.
+[![CI](https://github.com/GalletitaDeAnis/rescueopssim/actions/workflows/ci.yml/badge.svg)](https://github.com/GalletitaDeAnis/rescueopssim/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-informational.svg)](LICENSE)
+[![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](#)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20Linux-lightgrey.svg)](#)
+
+**Deterministic search-and-rescue operations simulator in modern C++ (C++20).**  
+A portfolio-grade systems project focused on **determinism, reproducibility, and engineering quality**: simulation core, CLI runner, unit tests, CI, and a UI stub ready for SDL2/ImGui.
 
 > **Safety / Scope**
-> This repository is designed for **humanitarian & civil** use-cases (search-and-rescue, disaster response, logistics).
+> RescueOpsSim is designed for **humanitarian and civil** scenarios (search & rescue, disaster response, logistics training).
 > It is **not** intended for weaponization, targeting, or harm.
+
+---
+
+## Why this project is a strong C++ portfolio piece
+
+RescueOpsSim intentionally targets “serious systems” constraints:
+
+- **Determinism & reproducibility** (same scenario + seed → same result)
+- **Testable architecture** (core simulation independent from UI)
+- **Performance-friendly design** (fixed timestep, predictable scheduling)
+- **Professional tooling** (CMake presets, CI matrix, lint/format configs)
+- **Extensible model layers** (motion/sensors/comms stubs + planners)
 
 ---
 
 ## What you get (today)
 
-- ✅ **Deterministic simulation core** (fixed-tick scheduler + stable update order)
-- ✅ **Scenario-driven runs** via JSON files (`scenarios/*.json`)
-- ✅ **CLI runner** (`rescue_cli`) for headless execution + minimal JSON result export
-- ✅ **Planning algorithms**: A* pathfinding starter (unit-tested)
-- ✅ **Tracking primitive**: simple Kalman filter starter (unit-tested)
-- ✅ **Clean repo hygiene**: CMake presets, tests, CI, clang-format/tidy configs
-- 🧩 **UI app stub** (`rescue_ui`) behind `RESCUEOPS_BUILD_UI` (ready for SDL2/ImGui integration)
+- ✅ Deterministic simulation core (**fixed-tick scheduler + stable update order**)
+- ✅ Scenario-driven runs via JSON (`scenarios/*.json`)
+- ✅ CLI runner (`rescue_cli`) for headless execution + results export
+- ✅ Planning starter: **A\*** pathfinding (**unit-tested**)
+- ✅ Tracking starter: simple **Kalman filter** (**unit-tested**)
+- ✅ Repo hygiene: CMake presets, GitHub Actions, clang-format/tidy configs
+- 🧩 UI app stub (`rescue_ui`) behind `RESCUEOPS_BUILD_UI` (SDL2/ImGui-ready)
 
 ---
 
-## Why this is a strong C++ portfolio project
-
-RescueOpsSim is intentionally built around the kinds of constraints you see in serious systems work:
-
-- **Determinism & reproducibility** (same seed → same result)
-- **Testable core** (simulation logic separate from UI)
-- **Performance-friendly architecture** (fixed timestep, data-oriented layout ready)
-- **Professional tooling** (CMake presets, CI matrix, lint configs)
-- **Extensible design** (models for comms/sensors/motion, planners, scenario schema)
-
----
-
-## Quickstart
+## Quickstart (Windows)
 
 ### Requirements
-- **CMake ≥ 3.22**
-- A C++20 compiler:
-  - Windows: Visual Studio 2022
-  - Linux: Clang or GCC
-- (Linux) `ninja-build` recommended
+- **Visual Studio 2022** (C++ workload)
+- **CMake ≥ 3.22** (or the one bundled with VS)
+- (Optional) **Ninja** for faster builds
 
-### Build + test (Linux)
-```bash
-cmake --preset linux
-cmake --build --preset linux
-ctest --preset linux
-```
+### Configure + build + test
+From the repository root:
 
-Run:
-```bash
-./build/linux/apps/cli/rescue_cli --scenario scenarios/tutorial_01.json --ticks 200 --out results.json
-```
-
-### Build + test (Windows / PowerShell)
 ```powershell
 cmake --preset windows
 cmake --build --preset windows
 ctest --preset windows
 ```
 
-Run:
+### Run the CLI
 ```powershell
 .\build\windows\RelWithDebInfo\apps\cli\rescue_cli.exe --scenario scenarios\tutorial_01.json --ticks 200 --out results.json
+```
+
+---
+
+## Quickstart (Linux)
+
+```bash
+cmake --preset linux
+cmake --build --preset linux
+ctest --preset linux
+
+./build/linux/apps/cli/rescue_cli --scenario scenarios/tutorial_01.json --ticks 200 --out results.json
 ```
 
 ---
@@ -73,16 +79,21 @@ Run:
 rescue_cli --scenario <path> [--ticks N] [--seed N] [--out results.json]
 ```
 
-Example:
+Examples:
+
 ```bash
 ./build/linux/apps/cli/rescue_cli --scenario scenarios/urban_rescue_10u.json --ticks 500 --seed 1337 --out out.json
 ```
 
+```powershell
+.\build\windows\RelWithDebInfo\apps\cli\rescue_cli.exe --scenario scenarios\urban_rescue_10u.json --ticks 500 --seed 1337 --out out.json
+```
+
 ---
 
-## Scenario format
+## Scenario format (JSON)
 
-Scenarios are plain JSON. Minimal example:
+Minimal example:
 
 ```json
 {
@@ -99,22 +110,22 @@ Scenarios are plain JSON. Minimal example:
 - `seed`: RNG seed for reproducibility  
 - `ticks`: suggested run duration  
 - `world`: world dimensions  
-- `units`: initial unit positions
+- `units`: initial unit positions  
 
-See more in `docs/SCENARIOS.md`.
+More: `docs/SCENARIOS.md`
 
 ---
 
 ## Determinism (how it’s enforced)
 
-Determinism is crucial for debugging, CI, and “replayable” simulations.
+Determinism is crucial for debugging, CI, and replayable simulations.
 
 RescueOpsSim follows these rules:
-- Fixed-timestep simulation (`Tick`)
-- Stable ordering for updates and events
-- Seed-controlled RNG (scenario seed, optional CLI override)
+- **Fixed timestep** simulation (`Tick`)
+- **Stable ordering** for updates and scheduled events
+- **Seed-controlled RNG** (scenario seed, optional CLI override)
 
-Details: `docs/DETERMINISM.md`.
+Details: `docs/DETERMINISM.md`
 
 ---
 
@@ -122,84 +133,84 @@ Details: `docs/DETERMINISM.md`.
 
 ```txt
 rescueopssim/
-  apps/              # CLI and UI frontends
+  apps/
+    cli/            # headless runner (CI-friendly)
+    ui/             # visualization stub (SDL2/ImGui ready)
   src/
-    sim/             # engine/scheduler/world
-    models/          # comms/sensors/motion (starter)
-    planner/         # astar/kalman (starter)
-  tests/             # unit tests (ctest)
-  scenarios/         # example scenarios
-  docs/              # architecture + design notes
+    sim/            # engine / scheduler / world
+    models/         # comms / sensors / motion (starter)
+    planner/        # A* / Kalman (starter)
+  tests/            # unit tests (ctest)
+  scenarios/        # JSON scenarios
+  docs/             # architecture + design notes
 ```
 
----
-
-## Tooling & CI
-
-### GitHub Actions
-- Builds and runs tests on **Windows** and **Ubuntu**
-
-Workflow: `.github/workflows/ci.yml`
-
-### Formatting & static analysis
-- `.clang-format` for consistent style
-- `.clang-tidy` baseline config for modern C++ hygiene
+Architecture notes: `docs/ARCHITECTURE.md`
 
 ---
 
-## Dependencies (planned)
+## Dependencies (optional, via vcpkg)
 
-This repo includes a `vcpkg.json` manifest for planned optional dependencies:
-
-- `sdl2`, `imgui` (UI visualization)
-- `fmt`, `spdlog` (logging)
-- `nlohmann-json` (scenario parsing upgrades)
-- `entt` (ECS structure for scaling)
-- `glm` (math)
+This repo includes a `vcpkg.json` manifest for **planned optional dependencies**:
+- `fmt`, `spdlog`
+- `nlohmann-json`
+- `entt`
+- `sdl2`, `imgui`
+- `glm`
 
 **Note:** The current starter builds without requiring these packages.  
-They become relevant once you expand `rescue_ui` and enhance parsing/logging.
+They become relevant once you expand `rescue_ui` and upgrade JSON/logging.
+
+### Using vcpkg on Windows (optional)
+
+1) Install vcpkg (once) and set an environment variable:
+
+```powershell
+git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
+C:\vcpkg\bootstrap-vcpkg.bat
+setx VCPKG_ROOT "C:\vcpkg"
+```
+
+2) Configure with the vcpkg toolchain:
+
+```powershell
+cmake -S . -B build\windows-vcpkg -G "Visual Studio 17 2022" -A x64 `
+  -D CMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT\scripts\buildsystems\vcpkg.cmake" `
+  -D RESCUEOPS_BUILD_TESTS=ON -D RESCUEOPS_BUILD_UI=ON
+cmake --build build\windows-vcpkg --config RelWithDebInfo
+```
 
 ---
 
-## Roadmap (good “next commits”)
+## Build options
 
-**V0.2**
-- Replace minimal JSON parsing with `nlohmann-json`
-- Add a grid map with obstacles
-- A* path output + unit movement
+- `RESCUEOPS_BUILD_TESTS=ON/OFF`
+- `RESCUEOPS_BUILD_UI=ON/OFF`
 
-**V0.3**
-- Comms model: latency / packet loss simulation
-- Sensor model: noise + dropout
-- Deterministic replay recording
-
-**V0.4**
-- UI (SDL2 + ImGui): timeline, overlays, route visualization
-- Monte Carlo runs with summary statistics
+Presets in `CMakePresets.json` default to **tests ON** and **UI OFF**.
 
 ---
 
-## Contributing (solo-friendly)
+## Roadmap (portfolio-friendly)
 
-Recommended local workflow:
-```bash
-cmake --preset debug
-cmake --build --preset debug
-ctest --preset debug
-```
+- **V0.2**: upgrade scenario parsing to `nlohmann-json`, add obstacles + route output
+- **V0.3**: comms model (latency/loss), sensor noise & dropout, deterministic replay file
+- **V0.4**: UI timeline + overlays, Monte Carlo runner, summary statistics
 
-Format:
-```bash
-clang-format -i src/**/*.cpp src/**/*.hpp apps/**/*.cpp tests/**/*.cpp
-```
+Backlog: `ISSUES_BACKLOG.md`
+
+---
+
+## Contributing
+
+This is a personal portfolio project, but contributions are welcome:
+
+- Keep core changes **deterministic** (document ordering and RNG usage)
+- Add tests for new behavior where possible
+- Prefer small, reviewable PRs
 
 ---
 
 ## License
+
 MIT — see `LICENSE`.
-
----
-
-## Credits
-Built as a systems/engineering portfolio project. Contributions and suggestions are welcome.

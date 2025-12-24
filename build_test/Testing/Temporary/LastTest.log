@@ -1,0 +1,37 @@
+Start testing: Dec 24 19:18 UTC
+----------------------------------------------------------
+1/2 Testing: test_scheduler
+1/2 Test: test_scheduler
+Command: "/mnt/data/rescueopssim/build_test/test_scheduler"
+Directory: /mnt/data/rescueopssim/build_test
+"test_scheduler" start time: Dec 24 19:18 UTC
+Output:
+----------------------------------------------------------
+[TEST] test_scheduler_order
+All scheduler tests passed.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_scheduler" end time: Dec 24 19:18 UTC
+"test_scheduler" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/2 Testing: test_astar
+2/2 Test: test_astar
+Command: "/mnt/data/rescueopssim/build_test/test_astar"
+Directory: /mnt/data/rescueopssim/build_test
+"test_astar" start time: Dec 24 19:18 UTC
+Output:
+----------------------------------------------------------
+[TEST] test_astar_simple_path
+All A* tests passed.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_astar" end time: Dec 24 19:18 UTC
+"test_astar" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Dec 24 19:18 UTC

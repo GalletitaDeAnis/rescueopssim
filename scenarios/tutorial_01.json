@@ -1,0 +1,12 @@
+{
+  "seed": 42,
+  "ticks": 200,
+  "world": {
+    "width": 32,
+    "height": 18
+  },
+  "units": [
+    { "name": "alpha", "x": 2, "y": 2 },
+    { "name": "bravo", "x": 10, "y": 8 }
+  ]
+}

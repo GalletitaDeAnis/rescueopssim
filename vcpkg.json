@@ -1,0 +1,14 @@
+{
+  "name": "rescueopssim",
+  "version-string": "0.1.0",
+  "description": "Deterministic simulator starter kit (C++20)",
+  "dependencies": [
+    "fmt",
+    "spdlog",
+    "nlohmann-json",
+    "entt",
+    "sdl2",
+    "imgui",
+    "glm"
+  ]
+}

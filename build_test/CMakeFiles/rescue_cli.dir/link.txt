@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/rescue_cli.dir/apps/cli/main.cpp.o -o rescue_cli  libsim_core.a 

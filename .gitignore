@@ -1,0 +1,56 @@
+# --- C/C++ build artifacts ---
+*.o
+*.obj
+*.exe
+*.dll
+*.lib
+*.a
+*.so
+*.dylib
+*.pdb
+*.ilk
+*.exp
+
+# --- CMake (generated) ---
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
+Testing/
+Makefile
+compile_commands.json
+*.ninja
+*.ninja_deps
+*.ninja_log
+
+# Common build directories
+build/
+build_*/
+build-*/
+cmake-build-*/
+out/
+dist/
+bin/
+lib/
+
+# Your current accidental build folder
+build_test/
+
+# --- vcpkg (manifest mode) ---
+vcpkg_installed/
+vcpkg/buildtrees/
+vcpkg/packages/
+vcpkg/downloads/
+
+# --- IDEs ---
+.vs/
+.idea/
+*.user
+*.suo
+*.VC.db
+*.VC.opendb
+
+# --- OS ---
+.DS_Store
+Thumbs.db

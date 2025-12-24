@@ -1,2 +1,0 @@
-/usr/bin/ar qc libsim_core.a CMakeFiles/sim_core.dir/src/sim/engine.cpp.o CMakeFiles/sim_core.dir/src/sim/scheduler.cpp.o CMakeFiles/sim_core.dir/src/sim/world.cpp.o CMakeFiles/sim_core.dir/src/models/comms.cpp.o CMakeFiles/sim_core.dir/src/models/motion.cpp.o CMakeFiles/sim_core.dir/src/models/sensors.cpp.o CMakeFiles/sim_core.dir/src/planner/astar.cpp.o CMakeFiles/sim_core.dir/src/planner/kalman.cpp.o
-/usr/bin/ranlib libsim_core.a

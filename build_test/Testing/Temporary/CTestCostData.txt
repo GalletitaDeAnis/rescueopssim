@@ -1,3 +1,0 @@
-test_scheduler 1 0.0224585
-test_astar 1 0.0168075
----

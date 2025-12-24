@@ -1,0 +1,33 @@
+# Normalize text files to LF in the repo, regardless of OS checkout
+* text=auto
+
+# C/C++ sources
+*.c     text eol=lf
+*.h     text eol=lf
+*.cpp   text eol=lf
+*.hpp   text eol=lf
+*.cc    text eol=lf
+*.hh    text eol=lf
+*.inl   text eol=lf
+
+# CMake / config
+CMakeLists.txt      text eol=lf
+*.cmake             text eol=lf
+CMakePresets.json   text eol=lf
+*.json              text eol=lf
+*.yml               text eol=lf
+*.yaml              text eol=lf
+*.md                text eol=lf
+*.txt               text eol=lf
+
+# Windows scripts keep CRLF
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary

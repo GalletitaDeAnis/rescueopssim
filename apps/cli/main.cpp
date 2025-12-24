@@ -144,6 +144,69 @@ static std::vector<Target> parse_targets(const std::string& scenario_text)
   return out;
 }
 
+// Obstacles format (single key):
+// "obstacles": [
+//   {"x":16,"y":0,"w":1,"h":8},   // rect
+//   {"x":10,"y":10}              // single cell
+// ]
+static int apply_obstacles(const std::string& scenario_text, int w, int h, std::vector<std::uint8_t>& blocked)
+{
+  int count = 0;
+
+  auto set_cell = [&](int x, int y) {
+    if (x < 0 || y < 0 || x >= w || y >= h) return;
+    const std::size_t idx = static_cast<std::size_t>(y * w + x);
+    if (blocked[idx] == 0)
+    {
+      blocked[idx] = 1;
+      ++count;
+    }
+  };
+
+  auto blobOpt = extract_array_blob(scenario_text, "obstacles");
+  if (!blobOpt) return 0;
+
+  const std::string blob = *blobOpt;
+  std::size_t pos = 0;
+  while (true)
+  {
+    auto o = blob.find('{', pos);
+    if (o == std::string::npos) break;
+    auto e = blob.find('}', o);
+    if (e == std::string::npos) break;
+
+    const std::string obj = blob.substr(o, e - o + 1);
+
+    auto x = extract_int_field(obj, "x");
+    auto y = extract_int_field(obj, "y");
+    if (!x || !y)
+    {
+      pos = e + 1;
+      continue;
+    }
+
+    auto rw = extract_int_field(obj, "w");
+    auto rh = extract_int_field(obj, "h");
+
+    if (rw && rh)
+    {
+      const int W = static_cast<int>(*rw);
+      const int H = static_cast<int>(*rh);
+      for (int yy = 0; yy < H; ++yy)
+        for (int xx = 0; xx < W; ++xx)
+          set_cell(static_cast<int>(*x) + xx, static_cast<int>(*y) + yy);
+    }
+    else
+    {
+      set_cell(static_cast<int>(*x), static_cast<int>(*y));
+    }
+
+    pos = e + 1;
+  }
+
+  return count;
+}
+
 static char unit_glyph(const std::string& name)
 {
   for (char c : name)
@@ -167,11 +230,25 @@ struct PlanOut
 static std::string render_ascii_map(const rescueops::sim::World& w,
                                     const std::vector<Target>& targets,
                                     const std::vector<PlanOut>& plans,
+                                    const std::vector<std::uint8_t>& blocked,
                                     bool draw_paths)
 {
   std::vector<std::string> grid(static_cast<std::size_t>(w.height), std::string(static_cast<std::size_t>(w.width), '.'));
 
-  // 1) Paths first (only draw on empty cells so we don't "fight" with markers)
+  // 0) Obstacles first: '#'
+  for (int y = 0; y < w.height; ++y)
+  {
+    for (int x = 0; x < w.width; ++x)
+    {
+      const std::size_t idx = static_cast<std::size_t>(y * w.width + x);
+      if (idx < blocked.size() && blocked[idx] != 0)
+      {
+        grid[static_cast<std::size_t>(y)][static_cast<std::size_t>(x)] = '#';
+      }
+    }
+  }
+
+  // 1) Paths next: '*' only on empty cells ('.'), never over obstacles
   if (draw_paths)
   {
     for (const auto& p : plans)
@@ -186,11 +263,14 @@ static std::string render_ascii_map(const rescueops::sim::World& w,
     }
   }
 
-  // 2) Targets as 'x' (override '*')
+  // 2) Targets: 'x' override '*' (but not '#')
   for (const auto& t : targets)
   {
     if (t.tx >= 0 && t.ty >= 0 && t.tx < w.width && t.ty < w.height)
-      grid[static_cast<std::size_t>(t.ty)][static_cast<std::size_t>(t.tx)] = 'x';
+    {
+      char& cell = grid[static_cast<std::size_t>(t.ty)][static_cast<std::size_t>(t.tx)];
+      if (cell != '#') cell = 'x';
+    }
   }
 
   // 3) Units override everything
@@ -202,7 +282,7 @@ static std::string render_ascii_map(const rescueops::sim::World& w,
 
   std::ostringstream out;
   out << "ASCII map (origin at top-left)\n";
-  out << "Legend: '.' empty, '*' planned path, 'x' target, letter = unit\n\n";
+  out << "Legend: '.' empty, '#' obstacle, '*' planned path, 'x' target, letter = unit\n\n";
   for (int y = 0; y < w.height; ++y)
   {
     out << grid[static_cast<std::size_t>(y)] << "\n";
@@ -240,6 +320,7 @@ static void write_results_json(std::ostream& out,
                                rescueops::sim::Tick ticks_requested,
                                const rescueops::sim::RunResult& rr,
                                const rescueops::sim::World& world,
+                               int obstacles_count,
                                const std::vector<Target>& targets,
                                const std::vector<PlanOut>& plans,
                                bool pretty,
@@ -250,7 +331,7 @@ static void write_results_json(std::ostream& out,
   auto indent = [&](int n) -> std::string { return pretty ? std::string(static_cast<std::size_t>(n), ' ') : ""; };
 
   out << "{" << nl;
-  out << indent(2) << "\"version\": \"0.2-demo\"," << nl;
+  out << indent(2) << "\"version\": \"0.3-demo-obstacles\"," << nl;
 
   // scenario
   out << indent(2) << "\"scenario\": {" << nl;
@@ -264,7 +345,8 @@ static void write_results_json(std::ostream& out,
   out << indent(2) << "\"world\": {" << nl;
   out << indent(4) << "\"width\": " << world.width << "," << nl;
   out << indent(4) << "\"height\": " << world.height << "," << nl;
-  out << indent(4) << "\"unit_count\": " << world.units.size() << nl;
+  out << indent(4) << "\"unit_count\": " << world.units.size() << "," << nl;
+  out << indent(4) << "\"obstacles_count\": " << obstacles_count << nl;
   out << indent(2) << "}," << nl;
 
   // targets
@@ -301,6 +383,8 @@ static void write_results_json(std::ostream& out,
   for (std::size_t i = 0; i < plans.size(); ++i)
   {
     const auto& p = plans[i];
+    const int steps = (p.found && emit_paths && !p.path.empty()) ? static_cast<int>(p.path.size()) - 1 : 0;
+
     out << indent(4) << "{" << nl;
     out << indent(6) << "\"unit\": \"" << p.unit << "\"," << nl;
     out << indent(6) << "\"start\": ";
@@ -310,7 +394,8 @@ static void write_results_json(std::ostream& out,
     write_json_vec2(out, p.goal.x, p.goal.y);
     out << "," << nl;
     out << indent(6) << "\"found\": " << (p.found ? "true" : "false") << "," << nl;
-    out << indent(6) << "\"cost\": " << p.cost;
+    out << indent(6) << "\"cost\": " << p.cost << "," << nl;
+    out << indent(6) << "\"steps\": " << steps;
 
     if (emit_paths)
     {
@@ -400,19 +485,22 @@ int main(int argc, char** argv)
   }
   if (seed_override) eng.set_seed(*seed_override);
 
-  // Parse optional demo targets from scenario text (dependency-free)
+  // Parse optional demo fields from scenario text (dependency-free)
   const std::string scenario_text = read_all_text(scenario_path);
   const auto targets = parse_targets(scenario_text);
 
-  // Run simulation (currently: deterministic tick scheduling; movement is a planned roadmap item)
+  // Run simulation core (deterministic scheduler; movement is a roadmap item)
   const auto rr = eng.run(ticks);
 
-  // Prepare planning results for demo (A* on an empty grid; obstacles are a roadmap item)
+  // Build a planning grid from scenario (obstacles are used in A* + ASCII)
   rescueops::planner::Grid grid;
   grid.w = eng.world().width;
   grid.h = eng.world().height;
   grid.blocked.assign(static_cast<std::size_t>(grid.w * grid.h), 0);
 
+  const int obstacles_count = apply_obstacles(scenario_text, grid.w, grid.h, grid.blocked);
+
+  // Plan paths (A*) per-unit
   std::vector<PlanOut> plans;
   plans.reserve(eng.world().units.size());
 
@@ -422,7 +510,6 @@ int main(int argc, char** argv)
     po.unit = u.name;
     po.start = u.pos;
 
-    // Find a target for this unit (by name)
     bool has_goal = false;
     for (const auto& t : targets)
     {
@@ -454,9 +541,10 @@ int main(int argc, char** argv)
     plans.push_back(po);
   }
 
-  // ASCII (now includes paths if --emit-paths)
-  const std::string ascii = render_ascii_map(eng.world(), targets, plans, emit_paths);
+  // ASCII map (now shows obstacles + optional paths)
+  const std::string ascii = render_ascii_map(eng.world(), targets, plans, grid.blocked, emit_paths);
   std::cout << ascii << "\n";
+  std::cout << "Obstacles loaded: " << obstacles_count << "\n";
 
   if (!ascii_path.empty())
   {
@@ -467,10 +555,11 @@ int main(int argc, char** argv)
       return 3;
     }
     aout << ascii;
+    aout << "\nObstacles loaded: " << obstacles_count << "\n";
     std::cout << "Wrote: " << ascii_path << "\n";
   }
 
-  // Write results.json (demo-friendly)
+  // Results JSON
   if (!out_path.empty())
   {
     std::ofstream out(out_path, std::ios::binary);
@@ -480,7 +569,7 @@ int main(int argc, char** argv)
       return 3;
     }
 
-    write_results_json(out, scenario_path, ticks, rr, eng.world(), targets, plans, pretty, emit_paths);
+    write_results_json(out, scenario_path, ticks, rr, eng.world(), obstacles_count, targets, plans, pretty, emit_paths);
     std::cout << "Wrote: " << out_path << "\n";
   }
 

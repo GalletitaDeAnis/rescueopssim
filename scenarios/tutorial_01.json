@@ -1,12 +1,24 @@
 {
   "seed": 42,
   "ticks": 200,
-  "world": {
-    "width": 32,
-    "height": 18
-  },
+  "world": { "width": 32, "height": 18 },
   "units": [
     { "name": "alpha", "x": 2, "y": 2 },
-    { "name": "bravo", "x": 10, "y": 8 }
+    { "name": "bravo", "x": 11, "y": 2 }
+  ],
+  "targets": [
+    { "unit": "alpha", "tx": 28, "ty": 15 },
+    { "unit": "bravo", "tx": 5, "ty": 14 }
+  ],
+  "obstacles": [
+    { "x": 16, "y": 0, "w": 1, "h": 8 },
+    { "x": 16, "y": 10, "w": 1, "h": 8 },
+
+    { "x": 6, "y": 9, "w": 10, "h": 1 },
+    { "x": 20, "y": 6, "w": 6, "h": 1 },
+
+    { "x": 24, "y": 14 },
+    { "x": 25, "y": 14 },
+    { "x": 26, "y": 14 }
   ]
 }
